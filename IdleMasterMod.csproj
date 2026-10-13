@@ -1,0 +1,61 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <AssemblyName>IdleMasterMod</AssemblyName>
+    <!-- Change the path below to your game install folder (the one with BepInEx installed) -->
+    <GameDir>D:\Games\Steam\steamapps\common\My Party Is Grinding</GameDir>
+    <!-- Always generate a .pdb, even in Release, so BepInEx error logs show the actual source line
+         numbers (Plugin.cs) instead of just method names. "portable" = standard cross-platform format. -->
+    <DebugType>portable</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Game DLLs (from ...\MyPartyIsGrinding_Data\Managed) -->
+    <Reference Include="Assembly-CSharp">
+      <HintPath>$(GameDir)\MyPartyIsGrinding_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="GameStruct">
+      <HintPath>$(GameDir)\MyPartyIsGrinding_Data\Managed\GameStruct.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>$(GameDir)\MyPartyIsGrinding_Data\Managed\UnityEngine.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(GameDir)\MyPartyIsGrinding_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule">
+      <HintPath>$(GameDir)\MyPartyIsGrinding_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <!-- BepInEx DLLs (from the game install root, after BepInEx has been installed once) -->
+    <Reference Include="BepInEx">
+      <HintPath>$(GameDir)\BepInEx\core\BepInEx.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>$(GameDir)\BepInEx\core\0Harmony.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- Automatically copy IdleMasterMod.dll (+ .pdb) to the BepInEx plugins folder after a successful
+       build, so there's no manual copy after every "dotnet build -c Release". The .pdb is copied too
+       so BepInEx error logs can show the actual source line numbers. -->
+  <Target Name="CopyToPlugins" AfterTargets="Build">
+    <ItemGroup>
+      <FilesToCopy Include="$(TargetDir)$(AssemblyName).dll" />
+      <FilesToCopy Include="$(TargetDir)$(AssemblyName).pdb" Condition="Exists('$(TargetDir)$(AssemblyName).pdb')" />
+    </ItemGroup>
+    <Copy SourceFiles="@(FilesToCopy)" DestinationFolder="$(GameDir)\BepInEx\plugins\" />
+  </Target>
+
+</Project>
